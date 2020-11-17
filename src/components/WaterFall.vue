@@ -19,6 +19,10 @@ const WaterFall = defineComponent({
         return val >= 0
       }
     },
+    columns: { // 列数
+      type:Number,
+      default: 4
+    },
     colGap: { // 列间距
       type: Number,
       default: 10
@@ -26,7 +30,8 @@ const WaterFall = defineComponent({
     rowGap: { // 行间距
       type: Number,
       default: 10
-    }
+    },
+    isRender: Boolean // 自定义渲染时机
   },
   setup(props) {
     const readySize = ref(0)
@@ -37,12 +42,12 @@ const WaterFall = defineComponent({
       if(readySize.value === props.size) {
         //  这时候所有的子组件已加载完成
         console.log('所有子组件已经加载完成')
-      } 
+      }
     }
 
     watch(() => readySize.value, (val) => {
-      if (val === props.size && container.value) {
-        waterFall(container.value)
+      if ((val === props.size && container.value) || props.isRender) {
+        waterFall(container.value, props.columns, props.colGap, props.rowGap)
       }
     }, { immediate: true })
 
@@ -65,24 +70,30 @@ const WaterFall = defineComponent({
 export default WaterFall
 
 // 瀑布流布局
-function waterFall (dom) {
+function waterFall (dom, columns = 4, colGap = 10, rowGap = 10) {
+  console.log(colGap)
   const box = dom || document.querySelector('.water-fall-container')
   if (!box) return
   const items = box.children
-  // 定义每一列之间的间隙 为10像素
-  const gap = 10
   // 1- 确定列数  = 页面的宽度 / 图片的宽度
   // var pageWidth = getClient().width
   const pageWidth = box.clientWidth
-  const itemWidth = items[0].offsetWidth
-  const columns = parseInt(pageWidth / (itemWidth + gap))
+  // const itemWidth = items[0].offsetWidth
+  const itemWidth = pageWidth / columns
+  // const columns = parseInt(pageWidth / (itemWidth + colGap) + '')
+  console.log('itemWidth', itemWidth)
   const arr = []
+  let boxHeight = 0
+  const gap = (columns - 1) * colGap / columns
   for (let i = 0; i < items.length; i++) {
+    // 设置宽度
+    items[i].style.width = pageWidth / columns - gap + 'px'
     if (i < columns) {
       // 2- 确定第一行
-      // items[i].style.top = 0
-      items[i].style.top = 24 // padding
-      items[i].style.left = (itemWidth + gap) * i + 24 + 'px' // 24 padding-left：24px
+      items[i].style.top = 0 + 'px'
+      // items[i].style.top = 0 // padding
+      items[i].style.left = (itemWidth) * i + 'px' // 24 padding-left：24px
+      // console.log('items[i].style.left', items[i].style.left)
       arr.push(items[i].offsetHeight)
     } else {
       // 其他行
@@ -96,16 +107,21 @@ function waterFall (dom) {
         }
       }
       // 4- 设置下一行的第一个盒子位置
-      // top值就是最小列的高度 + gap
-      items[i].style.top = arr[index] + gap + 'px'
+      // top值就是最小列的高度 + rowGap
+      items[i].style.top = arr[index] + rowGap + 'px'
       // left值就是最小列距离左边的距离
       items[i].style.left = items[index].offsetLeft + 'px'
 
       // 5- 修改最小列的高度
       // 最小列的高度 = 当前自己的高度 + 拼接过来的高度 + 间隙的高度
-      arr[index] = arr[index] + items[i].offsetHeight + gap
+      arr[index] = arr[index] + items[i].offsetHeight + rowGap
+      // 设置父容器的高度 避免造成 BFC
+      if (i === items.length - 1) {
+        boxHeight = arr[index]
+      }
     }
   }
+  box.style.height = boxHeight + 'px'
 }
 </script>
 
@@ -113,11 +129,14 @@ function waterFall (dom) {
 .water-fall-container {
   width: 100%;
   position: relative;
+  min-height: 100px;
+  background-color: #2c3e50;
 }
 .water-fall-item {
   position: absolute;
-  width: 200px;
-  border: 1px solid seagreen;
+  /*width: 200px;*/
+  /*border: 1px solid seagreen;*/
   box-sizing: border-box;
+  box-shadow: 0 0 1px 1px #2c3e50;
 }
 </style>

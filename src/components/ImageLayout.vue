@@ -1,16 +1,20 @@
 <template>
-  <img @load="load" :src="src" alt="" />
+  <img @load="load" :src="src" alt="" :draggable="draggable"/>
 </template>
 <script>
 export default {
   name: 'ImageLayout',
   props: {
-    src: String
+    src: String,
+    alt: String,
+    draggable: {
+      type: Boolean,
+      default: true
+    }
   },
   methods: {
     load() {
-      // console.log('e', e)
-      // this.$emit('rendered')
+      this.$parent.addChild()
     }
   }
 }

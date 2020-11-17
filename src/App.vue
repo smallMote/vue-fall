@@ -1,14 +1,19 @@
 <template>
   <div>
-    <ImageLayout :src="require('./assets/logo.png')"/>
+<!--    <ImageLayout v-if="true" :src="require('./assets/logo.png')"/>-->
+<!--    <img :src="require('./assets/logo.png')" alt="" />-->
     <button @click="cure()">Cure</button>
     <button @click="append()">Append</button>
-    <WaterFall :size="images.length" v-if="true">
+    <WaterFall
+      :size="images.length"
+      :col-gap="10"
+      :row-gap="30"
+      v-if="true">
       <WaterFallItem
         v-for="(item, index) in images"
         :key="`water-item-${index}`">
         <!-- 你好 {{ index }} -->
-        <img src="./assets/logo.png" alt="" />
+        <ImageLayout :src="src"/>
       </WaterFallItem>
     </WaterFall>
   </div>
@@ -22,10 +27,15 @@ import WaterFallItem from './components/WaterFallItem'
 
 export default {
   name: 'App',
+  data() {
+    return {
+      src: 'https://img-s-msn-com.akamaized.net/tenant/amp/entityid/BB1a4uNc.img?h=174&w=300&m=6&q=60&u=t&o=t&l=f&f=jpg&x=1214&y=1268'
+    }
+  },
   components: {
     WaterFall,
     ImageLayout,
-    WaterFallItem 
+    WaterFallItem
   },
   setup() {
     let timer = null
@@ -62,6 +72,10 @@ export default {
 </script>
 
 <style>
+body {
+  padding: 0;
+  margin: 0;
+}
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -69,5 +83,9 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+.water-fall-item img {
+  width: 100%;
+  display: block;
 }
 </style>
