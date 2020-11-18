@@ -4,6 +4,7 @@
 <!--    <img :src="require('./assets/logo.png')" alt="" />-->
     <button @click="cure()">Cure</button>
     <button @click="append()">Append</button>
+    <WaterFallItemTest />
     <WaterFall
       :size="images.length"
       :col-gap="10"
@@ -22,8 +23,10 @@
 <script>
 import { onBeforeUnmount, ref } from 'vue'
 import WaterFall from './components/WaterFall'
-import ImageLayout from './components/ImageLayout'
+// import ImageLayout from './components/ImageLayout'
+import ImageLayout from './lib/ImageLayout'
 import WaterFallItem from './components/WaterFallItem'
+import WaterFallItemTest from './lib/WaterFallItem'
 
 export default {
   name: 'App',
@@ -35,7 +38,8 @@ export default {
   components: {
     WaterFall,
     ImageLayout,
-    WaterFallItem
+    WaterFallItem,
+    WaterFallItemTest
   },
   setup() {
     let timer = null
