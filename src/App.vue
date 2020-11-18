@@ -43,7 +43,7 @@ export default {
 
     const getImages = () => {
       timer = setTimeout(() => {
-        images.value = new Array(20).fill('你好')
+        images.value = new Array(2).fill('你好')
         clearTimeout(timer)
       }, 500)
     }
@@ -72,9 +72,10 @@ export default {
 </script>
 
 <style>
-body {
+* {
   padding: 0;
   margin: 0;
+  box-sizing: border-box;
 }
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;

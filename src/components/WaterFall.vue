@@ -71,57 +71,74 @@ export default WaterFall
 
 // 瀑布流布局
 function waterFall (dom, columns = 4, colGap = 10, rowGap = 10) {
-  console.log(colGap)
   const box = dom || document.querySelector('.water-fall-container')
   if (!box) return
   const items = box.children
   // 1- 确定列数  = 页面的宽度 / 图片的宽度
-  // var pageWidth = getClient().width
   const pageWidth = box.clientWidth
-  // const itemWidth = items[0].offsetWidth
   const itemWidth = pageWidth / columns
-  // const columns = parseInt(pageWidth / (itemWidth + colGap) + '')
-  console.log('itemWidth', itemWidth)
   const arr = []
   let boxHeight = 0
   const gap = (columns - 1) * colGap / columns
-  for (let i = 0; i < items.length; i++) {
-    // 设置宽度
-    items[i].style.width = pageWidth / columns - gap + 'px'
-    if (i < columns) {
-      // 2- 确定第一行
-      items[i].style.top = 0 + 'px'
-      // items[i].style.top = 0 // padding
-      items[i].style.left = (itemWidth) * i + 'px' // 24 padding-left：24px
-      // console.log('items[i].style.left', items[i].style.left)
-      arr.push(items[i].offsetHeight)
-    } else {
-      // 其他行
-      // 3- 找到数组中最小高度  和 它的索引
-      let minHeight = arr[0]
-      let index = 0
-      for (let j = 0; j < arr.length; j++) {
-        if (minHeight > arr[j]) {
-          minHeight = arr[j]
-          index = j
+  const nitherGap = colGap - gap
+  function render(pw = pageWidth, iw = itemWidth) {
+    for (let i = 0; i < items.length; i++) {
+      // 设置宽度
+      items[i].style.width = pw / columns - gap + 'px'
+      if (i < columns) {
+        // 2- 确定第一行
+        items[i].style.top = 0 + 'px'
+        items[i].style.left = (iw + nitherGap) * i + 'px'
+        arr.push(items[i].offsetHeight)
+        boxHeight = items[i].offsetHeight
+      } else {
+        // 其他行
+        // 3- 找到数组中最小高度  和 它的索引
+        let minHeight = arr[0]
+        let index = 0
+        for (let j = 0; j < arr.length; j++) {
+          if (minHeight > arr[j]) {
+            minHeight = arr[j]
+            index = j
+          }
+        }
+        // 4- 设置下一行的第一个盒子位置
+        // top值就是最小列的高度 + rowGap
+        items[i].style.top = arr[index] + rowGap + 'px'
+        // left值就是最小列距离左边的距离
+        let colIndex = i % columns
+        if (colIndex > columns - 1) {
+          colIndex = 0
+        }
+        items[i].style.left = (iw + nitherGap) * colIndex + 'px'
+
+        // 5- 修改最小列的高度
+        // 最小列的高度 = 当前自己的高度 + 拼接过来的高度 + 间隙的高度
+        arr[index] = arr[index] + items[i].offsetHeight + rowGap
+        // 设置父容器的高度 避免造成 BFC
+        if (i === items.length - 1) {
+          boxHeight = arr[index]
         }
       }
-      // 4- 设置下一行的第一个盒子位置
-      // top值就是最小列的高度 + rowGap
-      items[i].style.top = arr[index] + rowGap + 'px'
-      // left值就是最小列距离左边的距离
-      items[i].style.left = items[index].offsetLeft + 'px'
-
-      // 5- 修改最小列的高度
-      // 最小列的高度 = 当前自己的高度 + 拼接过来的高度 + 间隙的高度
-      arr[index] = arr[index] + items[i].offsetHeight + rowGap
-      // 设置父容器的高度 避免造成 BFC
-      if (i === items.length - 1) {
-        boxHeight = arr[index]
+      
+      // 设置第一列的left offset
+      if ((i + 1) % columns === 1) {
+        items[i].style.left = 0 + 'px'
       }
     }
+    box.style.height = boxHeight + 'px'
   }
-  box.style.height = boxHeight + 'px'
+  render()
+  
+  // 内容溢出，出现滚动条处理
+  const newPageWidth = box.clientWidth
+  if (newPageWidth < pageWidth) {
+    // 重绘
+    const timer = setTimeout(() => {
+      render(newPageWidth, newPageWidth / columns)
+      clearTimeout(timer)
+    }, 20)
+  }
 }
 </script>
 
